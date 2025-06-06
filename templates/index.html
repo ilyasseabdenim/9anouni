@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title data-i18n="title">Chik | A New Era in Legal AI</title>
-    <meta name="description" data-i18n="description" content="An immersive, AI-powered legal assistant for Moroccan Law, reimagined with fluid animations and a next-generation user experience.">
+    <title data-i18n="title">Chik | The Definitive Legal AI</title>
+    <meta name="description" data-i18n="description" content="The definitive version of the AI-powered legal assistant for Moroccan Law, featuring a premium, animated design that is flawless on both desktop and mobile.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,43 +42,46 @@
     </header>
 
     <main class="content-wrapper">
+        <div class="scroll-container" id="scroll-container">
 
-        <section class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-headline">
-                    <span data-i18n="headline1">Clarity for</span>
-                    <span data-i18n="headline2">Moroccan Law.</span>
-                </h1>
-                <p class="hero-subheadline" data-i18n="subheadline">An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.</p>
-                <button class="cta-button" id="start-chat-button">
-                    <span data-i18n="cta_button">Begin Consultation</span>
-                    <i data-feather="arrow-right"></i>
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-headline">
+                        <span data-i18n="headline1">Clarity for</span>
+                        <span data-i18n="headline2">Moroccan Law.</span>
+                    </h1>
+                    <p class="hero-subheadline" data-i18n="subheadline">An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.</p>
+                    <button class="cta-button" id="start-chat-button">
+                        <span data-i18n="cta_button">Begin Consultation</span>
+                        <i data-feather="arrow-right"></i>
+                    </button>
+                </div>
+                <div class="scroll-indicator">
+                    <div class="mouse-icon"></div>
+                </div>
+            </section>
+
+            <section class="chat-section" id="chat-section">
+                <div class="chat-container" id="chat-container">
+                    <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+                        </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="chat-input-bar">
+            <div class="suggestion-chips">
+                    <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
+                    <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
+                    <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
+            </div>
+            <div class="chat-input-wrapper">
+                <textarea id="user-input" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
+                <button id="send-button" aria-label="Send message">
+                    <i data-feather="arrow-up"></i>
                 </button>
             </div>
-            <div class="scroll-indicator">
-                <div class="mouse-icon"></div>
-            </div>
-        </section>
-
-        <section class="chat-section" id="chat-section">
-            <div class="chat-container" id="chat-container">
-                <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
-                    </div>
-                <div class="chat-input-area">
-                    <div class="suggestion-chips">
-                         <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
-                         <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
-                         <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
-                    </div>
-                    <div class="chat-input-wrapper">
-                        <textarea id="user-input" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
-                        <button id="send-button" aria-label="Send message">
-                            <i data-feather="arrow-up"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </footer>
     </main>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
