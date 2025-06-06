@@ -42,8 +42,7 @@
     </header>
 
     <main class="content-wrapper">
-        <div class="scroll-container" id="scroll-container">
-
+        <div class="main-scroll-area">
             <section class="hero-section">
                 <div class="hero-content">
                     <h1 class="hero-headline">
@@ -60,29 +59,43 @@
                     <div class="mouse-icon"></div>
                 </div>
             </section>
-
-            <section class="chat-section" id="chat-section">
-                <div class="chat-container" id="chat-container">
-                    <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
-                        </div>
-                </div>
-            </section>
+            <section id="chat-anchor" class="chat-anchor"></section>
         </div>
 
-        <footer class="chat-input-bar">
-            <div class="suggestion-chips">
-                    <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
-                    <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
-                    <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
+        <div class="chat-view-container" id="chat-view-container">
+            <div class="chat-container" id="chat-container">
+                <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+                    </div>
+                <div class="chat-input-area desktop-input-area">
+                     <div class="suggestion-chips">
+                         <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
+                         <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
+                         <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
+                    </div>
+                    <div class="chat-input-wrapper">
+                        <textarea id="user-input-desktop" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
+                        <button id="send-button-desktop" aria-label="Send message">
+                            <i data-feather="arrow-up"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="chat-input-wrapper">
-                <textarea id="user-input" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
-                <button id="send-button" aria-label="Send message">
-                    <i data-feather="arrow-up"></i>
-                </button>
-            </div>
-        </footer>
+        </div>
     </main>
+
+    <footer class="chat-input-bar mobile-input-bar">
+        <div class="suggestion-chips">
+            <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
+            <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
+            <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
+        </div>
+        <div class="chat-input-wrapper">
+            <textarea id="user-input-mobile" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
+            <button id="send-button-mobile" aria-label="Send message">
+                <i data-feather="arrow-up"></i>
+            </button>
+        </div>
+    </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
