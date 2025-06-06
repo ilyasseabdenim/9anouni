@@ -2,27 +2,27 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const languageSelector = document.getElementById('language-selector');
-    const sendButton = document.getElementById('send-button');
-    const userInput = document.getElementById('user-input');
+    const sendButtonMobile = document.getElementById('send-button-mobile');
+    const userInputMobile = document.getElementById('user-input-mobile');
+    const sendButtonDesktop = document.getElementById('send-button-desktop');
+    const userInputDesktop = document.getElementById('user-input-desktop');
     const chatMessages = document.getElementById('chat-messages');
     const startChatButton = document.getElementById('start-chat-button');
-    const scrollContainer = document.getElementById('scroll-container');
-    const chatSection = document.getElementById('chat-section');
+    const chatAnchor = document.getElementById('chat-anchor');
     const thinkingAnimationTemplate = document.getElementById('thinking-animation-template');
-    const chatWrapper = document.querySelector('.content-wrapper');
+    const mobileInputBar = document.querySelector('.mobile-input-bar');
 
     let isLoading = false;
 
     const i18n = {
         en: { title: "Chik | A New Era in Legal AI", description: "An immersive, AI-powered legal assistant for Moroccan Law...", headline1: "Clarity for", headline2: "Moroccan Law.", subheadline: "An AI assistant meticulously trained on legal codes...", cta_button: "Begin Consultation", chip_business: "Start a business", chip_family: "Family code", chip_property: "Property laws", placeholder_input: "Ask a question...", welcome_message: "Hello! How may I help you with Moroccan law today?" },
         fr: { title: "Chik | Une Nouvelle Ère en IA Juridique", description: "Un assistant juridique immersif pour le droit marocain...", headline1: "La Clarté pour", headline2: "le Droit Marocain.", subheadline: "Un assistant IA méticuleusement formé sur les codes juridiques...", cta_button: "Commencer la Consultation", chip_business: "Créer une entreprise", chip_family: "Code de la famille", chip_property: "Lois immobilières", placeholder_input: "Posez votre question...", welcome_message: "Bonjour ! Comment puis-je vous aider avec le droit marocain aujourd'hui ?" },
-        ar: { title: "تشيك | عصر جديد في الذكاء الاصطناعي القانوني", description: "مساعد قانوني غامر للقانون المغربي...", headline1: "وضوح تام", headline2: "للقانون المغربي.", subheadline: "مساعد ذكاء اصطناعي مدرب بدقة على القوانين...", cta_button: "ابدأ الاستشارة", chip_business: "بدء عمل تجاري", chip_family: "مدونة الأسرة", chip_property: "قوانين العقارات", placeholder_input: "اطرح سؤالك...", welcome_message: "مرحباً! كيف يمكنني مساعدتك في ما يخص القانون المغربي اليوم؟" }
+        ar: { title: "تشيك | عصر جديد في الذكاء الاصطناعي القانوني", description: "مساعد قانوني غامر للقانون المغربي...", headline1: "وضوح تام", headline2: "للقانون المغربي.", subheadline: "مساعد ذكاء اصطناعي مدرب بدقة على القوانين...", cta_button: "ابدأ الاستشارة", chip_business: "بدء عمل تجاري", chip_family: "مدونة الأسرة", chip_property: "قوانين العقارات", placeholder_input: "اطرح سؤالك...", welcome_message: "مرحباً! أنا تشيك، مساعدك القانوني الذكي للقانون المغربي. كيف يمكنني مساعدتك اليوم؟" }
     };
 
     const init = () => {
         feather.replace();
         setupEventListeners();
-        autoResizeTextarea();
         initializeLanguage();
         setupViewportListener();
     };
@@ -40,26 +40,38 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const setupEventListeners = () => {
         languageSelector.addEventListener('change', (e) => changeLanguage(e.target.value));
-        sendButton.addEventListener('click', handleSendMessage);
-        userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
-        userInput.addEventListener('input', autoResizeTextarea);
+        
+        // Handle both input forms
+        sendButtonMobile.addEventListener('click', () => handleSendMessage('mobile'));
+        userInputMobile.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage('mobile'); }});
+        
+        sendButtonDesktop.addEventListener('click', () => handleSendMessage('desktop'));
+        userInputDesktop.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage('desktop'); }});
+
         startChatButton.addEventListener('click', () => {
-            const target = window.matchMedia("(min-width: 800px)").matches ? document.querySelector('.main-content > .chat-container') : chatSection;
-            target.scrollIntoView({ behavior: 'smooth' });
-            setTimeout(() => userInput.focus(), 500);
+            chatAnchor.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => userInputMobile.focus(), 500);
         });
         document.querySelectorAll('.suggestion-chip').forEach(chip => {
-            chip.addEventListener('click', (e) => { userInput.value = e.target.getAttribute('data-query'); userInput.focus(); handleSendMessage(); });
+            chip.addEventListener('click', (e) => {
+                const query = e.target.getAttribute('data-query');
+                userInputMobile.value = query;
+                userInputDesktop.value = query;
+                userInputMobile.focus();
+                handleSendMessage('mobile');
+            });
         });
     };
     
-    const handleSendMessage = async () => {
-        const messageText = userInput.value.trim();
+    const handleSendMessage = async (source) => {
+        const input = (source === 'mobile') ? userInputMobile : userInputDesktop;
+        const messageText = input.value.trim();
         if (messageText === '' || isLoading) return;
         setLoading(true);
         addMessage('user', messageText);
+        input.value = '';
+        autoResizeTextarea(input);
         const thinkingMessageId = addThinkingMessage();
-        userInput.value = ''; autoResizeTextarea();
         try {
             const response = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: messageText }) });
             if (!response.ok) throw new Error('Network response was not ok.');
@@ -121,38 +133,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return html.replace(/\n/g, '<br>');
     };
     
-    const setLoading = (state) => { isLoading = state; chatWrapper.classList.toggle('is-loading', state); userInput.disabled = state; sendButton.disabled = state; };
-    const scrollToBottom = () => {
-        const target = window.matchMedia("(min-width: 800px)").matches ? document.querySelector('.main-content .chat-messages') : chatMessages;
-        if(target) target.scrollTo({ top: target.scrollHeight, behavior: 'smooth' });
+    const setLoading = (state) => {
+        isLoading = state;
+        sendButtonMobile.disabled = state;
+        sendButtonDesktop.disabled = state;
     };
-    const autoResizeTextarea = () => { userInput.style.height = 'auto'; userInput.style.height = `${userInput.scrollHeight}px`; };
+    const scrollToBottom = () => chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+    const autoResizeTextarea = (el) => { if(el) { el.style.height = 'auto'; el.style.height = `${el.scrollHeight}px`; } };
     
+    // Mobile Keyboard/Viewport Handling
     const setupViewportListener = () => {
         if (!window.matchMedia("(pointer: coarse)").matches) return;
         
-        const chatInputBar = document.querySelector('.chat-input-bar');
-        
         const handleFocus = () => {
-            const initialViewportHeight = window.innerHeight;
             const handleResize = () => {
-                if (window.visualViewport.height < initialViewportHeight) {
-                    const keyboardHeight = initialViewportHeight - window.visualViewport.height;
-                    chatInputBar.style.transform = `translateY(-${keyboardHeight}px)`;
-                    scrollContainer.style.paddingBottom = `${chatInputBar.offsetHeight}px`; // Prevent content from being hidden
-                }
+                const keyboardHeight = window.innerHeight - window.visualViewport.height;
+                mobileInputBar.style.transform = `translateY(-${Math.max(0, keyboardHeight)}px)`;
             };
-
             window.visualViewport.addEventListener('resize', handleResize);
-            
-            userInput.addEventListener('blur', () => {
+            userInputMobile.addEventListener('blur', () => {
                 window.visualViewport.removeEventListener('resize', handleResize);
-                chatInputBar.style.transform = `translateY(0px)`;
-                scrollContainer.style.paddingBottom = `0px`;
+                mobileInputBar.style.transform = `translateY(0px)`;
             }, { once: true });
         };
-        
-        userInput.addEventListener('focus', handleFocus);
+        userInputMobile.addEventListener('focus', handleFocus);
     };
 
     init();
