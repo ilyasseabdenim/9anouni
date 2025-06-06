@@ -1,15 +1,16 @@
 // static/js/script.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
-    const chatContainer = document.getElementById('chat-container');
     const languageSelector = document.getElementById('language-selector');
     const sendButton = document.getElementById('send-button');
     const userInput = document.getElementById('user-input');
     const chatMessages = document.getElementById('chat-messages');
     const startChatButton = document.getElementById('start-chat-button');
+    const scrollContainer = document.getElementById('scroll-container');
     const chatSection = document.getElementById('chat-section');
     const thinkingAnimationTemplate = document.getElementById('thinking-animation-template');
-    
+    const chatWrapper = document.querySelector('.content-wrapper');
+
     let isLoading = false;
 
     const i18n = {
@@ -22,9 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         feather.replace();
         setupEventListeners();
         autoResizeTextarea();
-        setupIntersectionObserver();
         initializeLanguage();
-        setupViewportListener(); // Add keyboard handler
+        setupViewportListener();
     };
 
     const initializeLanguage = () => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const addWelcomeMessage = (lang) => {
-        setTimeout(() => addMessage('bot', i18n[lang].welcome_message), 1000);
+        setTimeout(() => addMessage('bot', i18n[lang].welcome_message), 500);
     };
     
     const setupEventListeners = () => {
@@ -43,7 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
         sendButton.addEventListener('click', handleSendMessage);
         userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
         userInput.addEventListener('input', autoResizeTextarea);
-        startChatButton.addEventListener('click', () => { chatSection.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => userInput.focus(), 500); });
+        startChatButton.addEventListener('click', () => {
+            const target = window.matchMedia("(min-width: 800px)").matches ? document.querySelector('.main-content > .chat-container') : chatSection;
+            target.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => userInput.focus(), 500);
+        });
         document.querySelectorAll('.suggestion-chip').forEach(chip => {
             chip.addEventListener('click', (e) => { userInput.value = e.target.getAttribute('data-query'); userInput.focus(); handleSendMessage(); });
         });
@@ -83,7 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
         messageDiv.innerHTML = `<div class="message-content">${processMarkdown(text)}</div>`;
-        chatMessages.appendChild(messageDiv); scrollToBottom();
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
         return messageDiv.id = `msg-${Date.now()}`;
     };
 
@@ -94,7 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
         contentDiv.className = 'message-content';
         contentDiv.appendChild(thinkingAnimationTemplate.firstElementChild.cloneNode(true));
         messageDiv.appendChild(contentDiv);
-        chatMessages.appendChild(messageDiv); scrollToBottom();
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
         return messageDiv.id = `msg-thinking-${Date.now()}`;
     };
 
@@ -115,32 +121,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return html.replace(/\n/g, '<br>');
     };
     
-    const setLoading = (state) => { isLoading = state; chatContainer.classList.toggle('is-loading', state); userInput.disabled = state; sendButton.disabled = state; };
-    const scrollToBottom = () => chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-    const autoResizeTextarea = () => { userInput.style.height = 'auto'; userInput.style.height = `${userInput.scrollHeight}px`; };
-    const setupIntersectionObserver = () => {
-        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => document.body.classList.toggle('chat-active', entry.isIntersecting)); }, { threshold: .5 });
-        observer.observe(chatSection);
+    const setLoading = (state) => { isLoading = state; chatWrapper.classList.toggle('is-loading', state); userInput.disabled = state; sendButton.disabled = state; };
+    const scrollToBottom = () => {
+        const target = window.matchMedia("(min-width: 800px)").matches ? document.querySelector('.main-content .chat-messages') : chatMessages;
+        if(target) target.scrollTo({ top: target.scrollHeight, behavior: 'smooth' });
     };
-
-    // Mobile Keyboard/Viewport Handling
+    const autoResizeTextarea = () => { userInput.style.height = 'auto'; userInput.style.height = `${userInput.scrollHeight}px`; };
+    
     const setupViewportListener = () => {
-        if (!window.matchMedia("(pointer: coarse)").matches) return; // Only for touch devices
+        if (!window.matchMedia("(pointer: coarse)").matches) return;
         
-        userInput.addEventListener('focus', () => {
-            if (window.visualViewport) {
-                const handleResize = () => {
-                    const offset = window.innerHeight - window.visualViewport.height;
-                    document.documentElement.style.setProperty('--keyboard-offset', `${Math.max(0, offset)}px`);
-                    chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth'});
+        const chatInputBar = document.querySelector('.chat-input-bar');
+        
+        const handleFocus = () => {
+            const initialViewportHeight = window.innerHeight;
+            const handleResize = () => {
+                if (window.visualViewport.height < initialViewportHeight) {
+                    const keyboardHeight = initialViewportHeight - window.visualViewport.height;
+                    chatInputBar.style.transform = `translateY(-${keyboardHeight}px)`;
+                    scrollContainer.style.paddingBottom = `${chatInputBar.offsetHeight}px`; // Prevent content from being hidden
                 }
-                window.visualViewport.addEventListener('resize', handleResize);
-                userInput.addEventListener('blur', () => {
-                    window.visualViewport.removeEventListener('resize', handleResize);
-                    document.documentElement.style.setProperty('--keyboard-offset', '0px');
-                }, { once: true });
-            }
-        });
+            };
+
+            window.visualViewport.addEventListener('resize', handleResize);
+            
+            userInput.addEventListener('blur', () => {
+                window.visualViewport.removeEventListener('resize', handleResize);
+                chatInputBar.style.transform = `translateY(0px)`;
+                scrollContainer.style.paddingBottom = `0px`;
+            }, { once: true });
+        };
+        
+        userInput.addEventListener('focus', handleFocus);
     };
 
     init();
