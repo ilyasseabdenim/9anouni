@@ -2,13 +2,13 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="title">Chik | A New Era in Legal AI</title>
-    <meta name="description" data-i18n="description" content="An immersive, AI-powered legal assistant for Moroccan Law, reimagined with fluid animations and a next-generation user experience.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title data-i18n="title">Chik | Mobile-Native Legal AI</title>
+    <meta name="description" data-i18n="description" content="A mobile-first, app-like experience for Moroccan Law, engineered for flawless performance and intuitive use on any device.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
@@ -16,71 +16,63 @@
 </head>
 <body>
 
-    <div style="display: none;">
-        <div id="thinking-animation-template">
-            <svg class="thinking-svg" viewBox="0 0 100 20">
-                <path class="thinking-path" d="M 0 10 C 20 20, 40 0, 60 10 C 80 20, 100 0, 120 10" stroke-width="3" fill="none" />
-            </svg>
-        </div>
-    </div>
+    <div class="app-wrapper">
+        <aside class="app-sidebar">
+            <div class="sidebar-header">
+                <i data-feather="zap" class="logo-icon"></i>
+                <h1 class="logo-title">Chik</h1>
+            </div>
+            <p class="sidebar-subtitle" data-i18n="subheadline">An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.</p>
+            <div class="sidebar-content">
+                <h3 class="suggestions-title" data-i18n="suggestions_title">Suggestions</h3>
+                <div class="suggestion-chips-desktop">
+                    <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
+                    <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
+                    <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
+                </div>
+            </div>
+        </aside>
 
-    <div class="background-gradient"></div>
-
-    <header class="main-header">
-        <div class="logo">
-            <i data-feather="zap"></i>
-            <span>Chik</span>
-        </div>
-        <div class="language-select">
-            <i data-feather="globe"></i>
-            <select id="language-selector" aria-label="Select language">
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="ar">العربية</option>
-            </select>
-        </div>
-    </header>
-
-    <main class="content-wrapper">
-
-        <section class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-headline">
-                    <span data-i18n="headline1">Clarity for</span>
-                    <span data-i18n="headline2">Moroccan Law.</span>
-                </h1>
-                <p class="hero-subheadline" data-i18n="subheadline">An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.</p>
-                <button class="cta-button" id="start-chat-button">
-                    <span data-i18n="cta_button">Begin Consultation</span>
-                    <i data-feather="arrow-right"></i>
+        <div class="main-content">
+            <header class="main-header">
+                <span class="header-title">Chik</span>
+                <button class="menu-button" id="menu-button" aria-label="Open menu">
+                    <i data-feather="more-horizontal"></i>
                 </button>
-            </div>
-            <div class="scroll-indicator">
-                <div class="mouse-icon"></div>
-            </div>
-        </section>
+            </header>
 
-        <section class="chat-section" id="chat-section">
-            <div class="chat-container" id="chat-container">
-                <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
-                    </div>
-                <div class="chat-input-area">
-                    <div class="suggestion-chips">
+            <main class="chat-messages" id="chat-messages"></main>
+
+            <div class="action-sheet-backdrop" id="action-sheet-backdrop"></div>
+            <div class="action-sheet" id="action-sheet">
+                <div class="action-sheet-content">
+                    <h3 class="suggestions-title" data-i18n="suggestions_title">Suggestions</h3>
+                    <div class="suggestion-chips-mobile">
                          <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
                          <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
                          <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
                     </div>
-                    <div class="chat-input-wrapper">
-                        <textarea id="user-input" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
-                        <button id="send-button" aria-label="Send message">
-                            <i data-feather="arrow-up"></i>
-                        </button>
+                    <div class="language-select">
+                        <i data-feather="globe"></i>
+                        <select id="language-selector" aria-label="Select language">
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                            <option value="ar">العربية</option>
+                        </select>
                     </div>
                 </div>
             </div>
-        </section>
-
-    </main>
+            
+            <footer class="chat-input-bar">
+                <div class="chat-input-wrapper">
+                    <textarea id="user-input" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
+                    <button id="send-button" aria-label="Send message">
+                        <i data-feather="arrow-up"></i>
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
