@@ -42,60 +42,43 @@
     </header>
 
     <main class="content-wrapper">
-        <div class="main-scroll-area">
-            <section class="hero-section">
-                <div class="hero-content">
-                    <h1 class="hero-headline">
-                        <span data-i18n="headline1">Clarity for</span>
-                        <span data-i18n="headline2">Moroccan Law.</span>
-                    </h1>
-                    <p class="hero-subheadline" data-i18n="subheadline">An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.</p>
-                    <button class="cta-button" id="start-chat-button">
-                        <span data-i18n="cta_button">Begin Consultation</span>
-                        <i data-feather="arrow-right"></i>
-                    </button>
-                </div>
-                <div class="scroll-indicator">
-                    <div class="mouse-icon"></div>
-                </div>
-            </section>
-            <section id="chat-anchor" class="chat-anchor"></section>
-        </div>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-headline">
+                    <span data-i18n="headline1">Clarity for</span>
+                    <span data-i18n="headline2">Moroccan Law.</span>
+                </h1>
+                <p class="hero-subheadline" data-i18n="subheadline">An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.</p>
+                <button class="cta-button" id="start-chat-button">
+                    <span data-i18n="cta_button">Begin Consultation</span>
+                    <i data-feather="arrow-right"></i>
+                </button>
+            </div>
+            <div class="scroll-indicator">
+                <div class="mouse-icon"></div>
+            </div>
+        </section>
 
-        <div class="chat-view-container" id="chat-view-container">
+        <section class="chat-section" id="chat-section">
             <div class="chat-container" id="chat-container">
                 <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
                     </div>
-                <div class="chat-input-area desktop-input-area">
+                <div class="chat-input-area">
                      <div class="suggestion-chips">
                          <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
                          <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
                          <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
                     </div>
                     <div class="chat-input-wrapper">
-                        <textarea id="user-input-desktop" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
-                        <button id="send-button-desktop" aria-label="Send message">
+                        <textarea id="user-input" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
+                        <button id="send-button" aria-label="Send message">
                             <i data-feather="arrow-up"></i>
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
-
-    <footer class="chat-input-bar mobile-input-bar">
-        <div class="suggestion-chips">
-            <button class="suggestion-chip" data-i18n="chip_business" data-query="How do I start an SARL business?">Start a business</button>
-            <button class="suggestion-chip" data-i18n="chip_family" data-query="Explain the Moudawana family code.">Family code</button>
-            <button class="suggestion-chip" data-i18n="chip_property" data-query="What are property laws for foreigners?">Property laws</button>
-        </div>
-        <div class="chat-input-wrapper">
-            <textarea id="user-input-mobile" data-i18n-placeholder="placeholder_input" placeholder="Ask a question..." rows="1"></textarea>
-            <button id="send-button-mobile" aria-label="Send message">
-                <i data-feather="arrow-up"></i>
-            </button>
-        </div>
-    </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
