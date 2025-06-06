@@ -1,54 +1,30 @@
 // static/js/script.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
-    const chatMessages = document.getElementById('chat-messages');
-    const menuButton = document.getElementById('menu-button');
-    const actionSheet = document.getElementById('action-sheet');
-    const actionSheetBackdrop = document.getElementById('action-sheet-backdrop');
+    const chatContainer = document.getElementById('chat-container');
     const languageSelector = document.getElementById('language-selector');
-
-    // --- State ---
-    let isLoading = false;
+    const sendButton = document.getElementById('send-button');
+    const userInput = document.getElementById('user-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const startChatButton = document.getElementById('start-chat-button');
+    const chatSection = document.getElementById('chat-section');
+    const thinkingAnimationTemplate = document.getElementById('thinking-animation-template');
     
-    // --- i18n Translations ---
+    let isLoading = false;
+
     const i18n = {
-        en: {
-            subheadline: "An AI assistant meticulously trained on legal codes, redesigned for an intuitive, fluid, and powerful user experience.",
-            suggestions_title: "Suggestions",
-            chip_business: "Start a business",
-            chip_family: "Family code",
-            chip_property: "Property laws",
-            placeholder_input: "Ask a question...",
-            welcome_message: "Hello! I am Chik, your AI legal assistant for Moroccan law. How may I help you today?"
-        },
-        fr: {
-            subheadline: "Un assistant IA méticuleusement formé sur les codes juridiques, repensé pour une expérience utilisateur intuitive, fluide et puissante.",
-            suggestions_title: "Suggestions",
-            chip_business: "Créer une entreprise",
-            chip_family: "Code de la famille",
-            chip_property: "Lois immobilières",
-            placeholder_input: "Posez votre question...",
-            welcome_message: "Bonjour ! Je suis Chik, votre assistant juridique IA pour le droit marocain. Comment puis-je vous aider aujourd'hui ?"
-        },
-        ar: {
-            subheadline: "مساعد ذكاء اصطناعي مدرب بدقة على القوانين، أعيد تصميمه لتجربة مستخدم بديهية وسلسة وقوية.",
-            suggestions_title: "اقتراحات",
-            chip_business: "بدء عمل تجاري",
-            chip_family: "مدونة الأسرة",
-            chip_property: "قوانين العقارات",
-            placeholder_input: "اطرح سؤالك...",
-            welcome_message: "مرحباً! أنا تشيك، مساعدك القانوني الذكي للقانون المغربي. كيف يمكنني مساعدتك اليوم؟"
-        }
+        en: { title: "Chik | A New Era in Legal AI", description: "An immersive, AI-powered legal assistant for Moroccan Law...", headline1: "Clarity for", headline2: "Moroccan Law.", subheadline: "An AI assistant meticulously trained on legal codes...", cta_button: "Begin Consultation", chip_business: "Start a business", chip_family: "Family code", chip_property: "Property laws", placeholder_input: "Ask a question...", welcome_message: "Hello! How may I help you with Moroccan law today?" },
+        fr: { title: "Chik | Une Nouvelle Ère en IA Juridique", description: "Un assistant juridique immersif pour le droit marocain...", headline1: "La Clarté pour", headline2: "le Droit Marocain.", subheadline: "Un assistant IA méticuleusement formé sur les codes juridiques...", cta_button: "Commencer la Consultation", chip_business: "Créer une entreprise", chip_family: "Code de la famille", chip_property: "Lois immobilières", placeholder_input: "Posez votre question...", welcome_message: "Bonjour ! Comment puis-je vous aider avec le droit marocain aujourd'hui ?" },
+        ar: { title: "تشيك | عصر جديد في الذكاء الاصطناعي القانوني", description: "مساعد قانوني غامر للقانون المغربي...", headline1: "وضوح تام", headline2: "للقانون المغربي.", subheadline: "مساعد ذكاء اصطناعي مدرب بدقة على القوانين...", cta_button: "ابدأ الاستشارة", chip_business: "بدء عمل تجاري", chip_family: "مدونة الأسرة", chip_property: "قوانين العقارات", placeholder_input: "اطرح سؤالك...", welcome_message: "مرحباً! كيف يمكنني مساعدتك في ما يخص القانون المغربي اليوم؟" }
     };
 
-    // --- Initial Setup ---
     const init = () => {
         feather.replace();
         setupEventListeners();
+        autoResizeTextarea();
+        setupIntersectionObserver();
         initializeLanguage();
-        setupViewportListener();
+        setupViewportListener(); // Add keyboard handler
     };
 
     const initializeLanguage = () => {
@@ -59,46 +35,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const addWelcomeMessage = (lang) => {
-        setTimeout(() => addMessage('bot', i18n[lang].welcome_message), 500);
+        setTimeout(() => addMessage('bot', i18n[lang].welcome_message), 1000);
     };
-
-    // --- Event Listeners ---
+    
     const setupEventListeners = () => {
+        languageSelector.addEventListener('change', (e) => changeLanguage(e.target.value));
         sendButton.addEventListener('click', handleSendMessage);
-        userInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }});
-        
-        // Menu handling
-        menuButton.addEventListener('click', toggleActionSheet);
-        actionSheetBackdrop.addEventListener('click', toggleActionSheet);
-
-        // Language and suggestion chips
-        languageSelector.addEventListener('change', e => changeLanguage(e.target.value));
+        userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
+        userInput.addEventListener('input', autoResizeTextarea);
+        startChatButton.addEventListener('click', () => { chatSection.scrollIntoView({ behavior: 'smooth' }); setTimeout(() => userInput.focus(), 500); });
         document.querySelectorAll('.suggestion-chip').forEach(chip => {
-            chip.addEventListener('click', e => {
-                userInput.value = e.target.getAttribute('data-query');
-                toggleActionSheet(false); // Close sheet
-                handleSendMessage();
-            });
+            chip.addEventListener('click', (e) => { userInput.value = e.target.getAttribute('data-query'); userInput.focus(); handleSendMessage(); });
         });
     };
-
-    // --- Core Functions ---
+    
     const handleSendMessage = async () => {
         const messageText = userInput.value.trim();
         if (messageText === '' || isLoading) return;
         setLoading(true);
         addMessage('user', messageText);
-        userInput.value = '';
+        const thinkingMessageId = addThinkingMessage();
+        userInput.value = ''; autoResizeTextarea();
         try {
-            const res = await fetch('/ask', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: messageText }),
-            });
-            const data = await res.json();
+            const response = await fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: messageText }) });
+            if (!response.ok) throw new Error('Network response was not ok.');
+            const data = await response.json();
             if (data.error) throw new Error(data.error);
-            addMessage('bot', data.response);
+            updateThinkingMessage(thinkingMessageId, data.response);
         } catch (error) {
-            addMessage('bot', "Apologies, an error occurred. Please try again.");
+            console.error('Error:', error);
+            updateThinkingMessage(thinkingMessageId, "I'm sorry, an error occurred. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -108,51 +74,72 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.lang = lang;
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         const translations = i18n[lang];
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            el.textContent = translations[el.getAttribute('data-i18n')];
-        });
-        userInput.placeholder = translations.placeholder_input;
-        chatMessages.innerHTML = '';
-        addWelcomeMessage(lang);
+        document.querySelectorAll('[data-i18n]').forEach(el => { if (translations[el.dataset.i18n]) el.textContent = translations[el.dataset.i18n]; });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { if (translations[el.dataset.i18nPlaceholder]) el.placeholder = translations[el.dataset.i18nPlaceholder]; });
+        chatMessages.innerHTML = ''; addWelcomeMessage(lang);
     };
-
+    
     const addMessage = (sender, text) => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
-        messageDiv.innerHTML = `<div class="message-content">${text.replace(/\n/g, '<br>')}</div>`;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        messageDiv.innerHTML = `<div class="message-content">${processMarkdown(text)}</div>`;
+        chatMessages.appendChild(messageDiv); scrollToBottom();
+        return messageDiv.id = `msg-${Date.now()}`;
     };
 
-    const toggleActionSheet = (force) => {
-        document.body.classList.toggle('action-sheet-open', force);
+    const addThinkingMessage = () => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message is-thinking';
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.appendChild(thinkingAnimationTemplate.firstElementChild.cloneNode(true));
+        messageDiv.appendChild(contentDiv);
+        chatMessages.appendChild(messageDiv); scrollToBottom();
+        return messageDiv.id = `msg-thinking-${Date.now()}`;
     };
 
-    const setLoading = (state) => {
-        isLoading = state;
-        sendButton.disabled = state;
+    const updateThinkingMessage = (messageId, newText) => {
+        const thinkingMessage = document.getElementById(messageId);
+        if (thinkingMessage) {
+            thinkingMessage.classList.remove('is-thinking');
+            const contentDiv = thinkingMessage.querySelector('.message-content');
+            contentDiv.style.opacity = '0';
+            setTimeout(() => { contentDiv.innerHTML = processMarkdown(newText); contentDiv.style.opacity = '1'; scrollToBottom(); }, 300);
+        }
     };
 
-    // --- Mobile Viewport/Keyboard Handling ---
+    const processMarkdown = (text) => {
+        let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/^\s*###\s*(.*)/gm, '<h3>$1</h3>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>');
+        html = html.replace(/^\s*--\s*(.*)/gm, '<li>$1</li>');
+        html = html.replace(/(<li>(?:.|\n)*?<\/li>)/g, '<ul>$1</ul>').replace(/<\/ul>\n?<ul>/g, '');
+        return html.replace(/\n/g, '<br>');
+    };
+    
+    const setLoading = (state) => { isLoading = state; chatContainer.classList.toggle('is-loading', state); userInput.disabled = state; sendButton.disabled = state; };
+    const scrollToBottom = () => chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+    const autoResizeTextarea = () => { userInput.style.height = 'auto'; userInput.style.height = `${userInput.scrollHeight}px`; };
+    const setupIntersectionObserver = () => {
+        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => document.body.classList.toggle('chat-active', entry.isIntersecting)); }, { threshold: .5 });
+        observer.observe(chatSection);
+    };
+
+    // Mobile Keyboard/Viewport Handling
     const setupViewportListener = () => {
         if (!window.matchMedia("(pointer: coarse)").matches) return; // Only for touch devices
-
-        const setKeyboardOffset = () => {
-            const offset = window.innerHeight - window.visualViewport.height;
-            document.documentElement.style.setProperty('--keyboard-offset', `${Math.max(0, offset)}px`);
-        };
-        
-        window.visualViewport.addEventListener('resize', setKeyboardOffset);
         
         userInput.addEventListener('focus', () => {
-             // Briefly hide action sheet if open
-            if(document.body.classList.contains('action-sheet-open')) {
-                toggleActionSheet(false);
+            if (window.visualViewport) {
+                const handleResize = () => {
+                    const offset = window.innerHeight - window.visualViewport.height;
+                    document.documentElement.style.setProperty('--keyboard-offset', `${Math.max(0, offset)}px`);
+                    chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth'});
+                }
+                window.visualViewport.addEventListener('resize', handleResize);
+                userInput.addEventListener('blur', () => {
+                    window.visualViewport.removeEventListener('resize', handleResize);
+                    document.documentElement.style.setProperty('--keyboard-offset', '0px');
+                }, { once: true });
             }
-            setTimeout(setKeyboardOffset, 50); // Delay to get final value
-        });
-        userInput.addEventListener('blur', () => {
-            document.documentElement.style.setProperty('--keyboard-offset', '0px');
         });
     };
 
